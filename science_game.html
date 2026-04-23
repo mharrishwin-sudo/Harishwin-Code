@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Physics Racer: Friction Lab</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #2c3e50; color: white; margin: 0; overflow: hidden; }
+        #game-container { position: relative; width: 800px; height: 400px; margin: 20px auto; background: #95a5a6; border: 4px solid #ecf0f1; overflow: hidden; }
+        #car { position: absolute; bottom: 50px; left: 50px; width: 60px; height: 30px; background: #e74c3c; border-radius: 5px; transition: transform 0.1s; }
+        .wheel { position: absolute; width: 12px; height: 12px; background: #333; border-radius: 50%; }
+        #ui { margin-top: 20px; padding: 20px; background: #34495e; }
+        .road-label { position: absolute; top: 10px; width: 100%; font-weight: bold; font-size: 24px; text-transform: uppercase; }
+        #feedback { font-size: 1.2rem; color: #f1c40f; margin: 10px; height: 24px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 5px; }
+        button:hover { background: #2ecc71; }
+    </style>
+</head>
+<body>
+
+    <h1>Physics Racer: The Friction Challenge</h1>
+    <p>Objective: Reach the finish line. Adjust the car's <strong>Friction</strong> to match the road!</p>
+
+    <div id="game-container">
+        <div id="road-type" class="road-label">Surface: ASPHALT</div>
+        <div id="car">
+            <div class="wheel" style="top:-5px; left:5px;"></div>
+            <div class="wheel" style="top:25px; left:5px;"></div>
+            <div class="wheel" style="top:-5px; right:5px;"></div>
+            <div class="wheel" style="top:25px; right:5px;"></div>
+        </div>
+        <div id="finish-line" style="position:absolute; right:0; top:0; width:20px; height:100%; background:repeating-linear-gradient(45deg, #fff, #fff 10px, #000 10px, #000 20px);"></div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="ui">
+        <label>Set Tires: </label>
+        <select id="friction-select">
+            <option value="low">Low Friction (Slippery)</option>
+            <option value="high" selected>High Friction (Grippy)</option>
+        </select>
+        <button onclick="startRace()">START RACE</button>
+        <button onclick="resetGame()">RESET</button>
+    </div>
+
+    <script>
+        const car = document.getElementById('car');
+        const roadLabel = document.getElementById('road-type');
+        const feedback = document.getElementById('feedback');
+        const gameContainer = document.getElementById('game-container');
+        
+        let posX = 50;
+        let speed = 0;
+        let racing = false;
+        let surface = "asphalt"; // can be "asphalt" or "ice"
+
+        function startRace() {
+            if(racing) return;
+            racing = true;
+            const friction = document.getElementById('friction-select').value;
+            
+            let animation = setInterval(() => {
+                if (!racing) { clearInterval(animation); return; }
+
+                // SCIENCE LOGIC
+                if (surface === "asphalt" && friction === "high") {
+                    speed = 5; // Good grip
+                    feedback.innerText = "Great grip on asphalt!";
+                } else if (surface === "asphalt" && friction === "low") {
+                    speed = 1; // Sliding, no power
+                    feedback.innerText = "Wheels are spinning! Not enough friction.";
+                } else if (surface === "ice" && friction === "low") {
+                    speed = 8; // Sliding out of control (fast but dangerous)
+                    feedback.innerText = "Sliding on ice! High momentum!";
+                } else if (surface === "ice" && friction === "high") {
+                    speed = 3; // Studded tires/chains
+                    feedback.innerText = "Traction control active on ice.";
+                }
+
+                posX += speed;
+                car.style.left = posX + "px";
+
+                // Check for win
+                if (posX > 720) {
+                    racing = false;
+                    clearInterval(animation);
+                    feedback.innerText = "FINISH LINE REACHED! Changing terrain...";
+                    setTimeout(nextLevel, 2000);
+                }
+            }, 20);
+        }
+
+        function nextLevel() {
+            surface = "ice";
+            gameContainer.style.background = "#dff9fb";
+            roadLabel.innerText = "Surface: SMOOTH ICE";
+            roadLabel.style.color = "#2c3e50";
+            resetCar();
+        }
+
+        function resetCar() {
+            racing = false;
+            posX = 50;
+            car.style.left = posX + "px";
+        }
+
+        function resetGame() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
